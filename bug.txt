@@ -1,0 +1,35 @@
+WARN: Unresolved specs during Gem::Specification.reset:
+      listen (~> 3.0)
+      rouge (< 4, >= 1.7)
+      rb-fsevent (>= 0.9.4, ~> 0.9)
+      ffi (< 2, >= 0.5.0)
+WARN: Clearing out unresolved specs.
+Please report a bug if this causes problems.
+/var/lib/gems/2.3.0/gems/bundler-1.16.1/lib/bundler/resolver.rb:55:in `rescue in start': Bundler could not find compatible versions for gem "jekyll-feed": (Bundler::VersionConflict)
+  In snapshot (Gemfile.lock):
+    jekyll-feed (= 0.9.3)
+
+  In Gemfile:
+    jekyll-feed (~> 0.6)
+
+    github-pages was resolved to 177, which depends on
+      jekyll-feed (= 0.9.2)
+
+    minima (~> 2.0) was resolved to 2.3.0, which depends on
+      jekyll-feed (~> 0.9)
+
+Running `bundle update` will rebuild your snapshot from scratch, using only
+the gems in your Gemfile, which may resolve the conflict.
+	from /var/lib/gems/2.3.0/gems/bundler-1.16.1/lib/bundler/resolver.rb:45:in `start'
+	from /var/lib/gems/2.3.0/gems/bundler-1.16.1/lib/bundler/resolver.rb:22:in `resolve'
+	from /var/lib/gems/2.3.0/gems/bundler-1.16.1/lib/bundler/definition.rb:257:in `resolve'
+	from /var/lib/gems/2.3.0/gems/bundler-1.16.1/lib/bundler/definition.rb:170:in `specs'
+	from /var/lib/gems/2.3.0/gems/bundler-1.16.1/lib/bundler/definition.rb:237:in `specs_for'
+	from /var/lib/gems/2.3.0/gems/bundler-1.16.1/lib/bundler/definition.rb:226:in `requested_specs'
+	from /var/lib/gems/2.3.0/gems/bundler-1.16.1/lib/bundler/runtime.rb:108:in `block in definition_method'
+	from /var/lib/gems/2.3.0/gems/bundler-1.16.1/lib/bundler/runtime.rb:20:in `setup'
+	from /var/lib/gems/2.3.0/gems/bundler-1.16.1/lib/bundler.rb:107:in `setup'
+	from /var/lib/gems/2.3.0/gems/jekyll-3.7.3/lib/jekyll/plugin_manager.rb:50:in `require_from_bundler'
+	from /var/lib/gems/2.3.0/gems/jekyll-3.7.3/exe/jekyll:11:in `<top (required)>'
+	from /usr/local/bin/jekyll:23:in `load'
+	from /usr/local/bin/jekyll:23:in `<main>'
