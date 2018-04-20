@@ -3,6 +3,7 @@ layout: post
 title:  "Research project: CNF formula entropy approximation patch for STS explained"
 date:   2017-06-19 00:00:00 +0200
 categories: sat c++ 
+math: true
 ---
 I describe here a patch I've made to SearchTreeSampler - an approximate SAT model counter by [Stefano Ermon](https://cs.stanford.edu/~ermon/).
 
