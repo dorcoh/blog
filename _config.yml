@@ -16,7 +16,7 @@
 title: Intractable - Code, Optimization, Machine Learning and Statistics.
 email: dorcoh@gmail.com
 description: >- # this means to ignore newlines until "baseurl:"
-  Data has increasing impact on our life, over the recent years industries has shifted through applying AI technologies.
+  Data has increasing impact on our life, over the recent years industries have shifted through applying AI technologies.
   In this blog I write about various topics including Statistics, Machine Learning algorithms, Optimization methods and code implementations.
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "" # the base hostname & protocol for your site, e.g. http://example.com
