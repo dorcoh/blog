@@ -48,9 +48,8 @@ $$ e(v) = -r(v)logr(v) -r(\bar v)logr(\bar v) $$
 _The entropy of a satisfiable formula is the average entropy of its variables_
 
 Entropy function is depicted below:
-![entropyShan]({{site.baseurl}}/_posts/entropyShan.png)
 
-![entropyShan.jpg]({{site.baseurl}}/_posts/entropyShan.jpg)
+![Entropy function]({{ "/assets/entropyShan.png" | absolute_url }}){: .center-image }
 
 **Motivation**: Since model counting is a $$ #P $$ problem, entropy is hard to compute and requires $$ n $$ calls to a model counter (as the number of variables in the input formula).
 
