@@ -6,8 +6,14 @@ categories: sat c++
 math: true
 ---
 I describe here a patch I've made to SearchTreeSampler - an approximate SAT model counter by [Stefano Ermon](https://cs.stanford.edu/~ermon/).
-
+lly
 The [patch](https://github.com/dorcoh/hashing-optimization) leverages the uniform solution sampling method to compute the entropy of CNF formula, a new property of SAT formulas which I'll define below.
+
+So before we dive in, here's a bit of motivation:
+
+SAT is NP-Hard problem, briefly that means there is no efficient algorithm (with polynomial complexity) that solve this problem. Moreover, the problem gets harder (exponentially) as we increase its input (the number of variables).
+
+There's also an annual contest for SAT solvers (programs that solve the SAT problem) which are heavily used in the industry on the domain of formal verification.
 
 # Preliminaries
 
@@ -15,7 +21,7 @@ The [patch](https://github.com/dorcoh/hashing-optimization) leverages the unifor
 
 Let \\( X_1 ,... X_n \\) be boolean variables
 
-A boolean formula \\( \varphi \\) is said to be in CNF if it's a logical conjunction of a set of clauses \\( C_1,...,C_n \\), where each clause \\( C \\) is a logical disjunction of a set of literals (a base element that could be a variable or it's negation). A clause for example: \\( (x_1 \vee \neg x_2) \\)
+A boolean formula \\( \varphi \\) is said to be in CNF if it's a logical conjunction of a set of clauses \\( C_1,...,C_n \\), where each clause \\( C \\) is a logical disjunction of a set of literals (a base element that could be a variable or its negation). An example of a clause is: \\( (x_1 \vee \neg x_2) \\)
 
 SAT problem is defined as deciding whether there exists an assignment that satisfies \\( \varphi \\)
 
@@ -26,6 +32,8 @@ Satisfying assignment: \\( \{ x_1=1,x_2=1,x_3=1,x_4=1 \} \\)
 \\( \Longrightarrow \varphi \\) is SATISFIABLE
 
 ## Model counting
+
+Model counting is actually even harder than SAT, it is believed to be in $#P$ complexity class. Basically if in SAT we would like to decide if there's a solution or not, in model counting we want to find out how many solutions there are. Let's define it formally:
 
 Let \\( V \\) be the set of boolean variables of \\( \varphi \\) and let $$ \sum $$ be the set of all possible assignments to these variables
 
@@ -50,6 +58,8 @@ _The entropy of a satisfiable formula is the average entropy of its variables_
 Entropy function is depicted below:
 
 ![Entropy function]({{ "/assets/entropyShan.png" | absolute_url }}){: .center-image }
+
+
 
 **Motivation**: Since model counting is a $$ #P $$ problem, entropy is hard to compute and requires $$ n $$ calls to a model counter (as the number of variables in the input formula).
 
@@ -96,7 +106,7 @@ for (int iter=0; iter<var_num; iter++)
 }
 ```
 
-I used the loop for outputting solutions to count the number of times each literals appear in the solutions, so I added the following lines:
+I used the loop for outputting solutions to count the number of times each literal appear in the solutions, so I added the following lines:
 
 ```cpp
 // compute #(x) and #(!x)
