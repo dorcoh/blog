@@ -9,11 +9,11 @@ comments: true
 Lately I've been interested in understanding more deeply some of the modules in `sklearn` library and decided the best way to learn is to contribute to the open-source project, which also helps the community. The post goal then is to make the contribution process easier for newcomers, we will examine and fix together a bug.
 
 <b>Prerequisites:</b>
-You should be familiar with <i>Python</i>, <i>Bash</i>, <i>Git</i> and have a Github account
+You should be familiar with <i>Python</i>, <i>Git</i> and have a Github account
 
 # Get started
 
-To get started log into your Github account and fork the latest repository of [scikit-learn][sklearn-git], then clone it to your directory of choice using this command (you can retrieve the link with the green button):
+To get started log into your Github account and fork the latest repository of [scikit-learn][sklearn-git], then clone it to your directory of choice using this command (you can retrieve the link with the green button which says 'Clone or download'):
 
 `git clone https://github.com/your_user_name/scikit-learn.git`
 
@@ -115,7 +115,7 @@ Out[9]:
  'news everyone']
 ```
 
-As you noticed this class has a property `ngram_range` which allows to choose range for extracting n-grams (e.g., 1 <= n <= 2 extracts 1-gram and 2-grams), the problem is a missing validation for this parameter, it turns out that we could set `ngram_range=(2,1)`, which doesn't make sense of course. Following `sklearn` current guidelines, we should perform the validation on `fit(..)` function rather than `__init__(..)` - the class constructor. 
+As you noticed this class has a property `ngram_range` which allows to choose range for extracting n-grams (e.g., 1 <= n <= 2 extracts 1-gram and 2-grams), the problem is a missing validation for this parameter, it turns out that we could set `ngram_range=(2,1)`, which doesn't make sense of course, and more importantly it could break other stuff that assumes its validity. Following `sklearn` current guidelines, we should perform the validation on `fit(..)` function rather than `__init__(..)` - the class constructor. 
 
 Let's explore the corresponding module `feature_extraction/text.py`, take a look at these class definitions:
 
@@ -231,7 +231,8 @@ Specifically for `scikit` they follow coding standards (see on their contributin
 
 Next push changes and [submit a pull request][pull-request], then wait for code review.
 
-Hope you enjoyed this, happy comitting!
+Hope you enjoyed this post, happy comitting!
+
 
 # References
 
