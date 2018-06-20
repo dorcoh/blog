@@ -11,7 +11,7 @@ The [patch](https://github.com/dorcoh/hashing-optimization) leverages the unifor
 
 So before we dive in, here's a bit of motivation:
 
-SAT is NP-Hard problem, briefly that means there is no efficient algorithm (with polynomial complexity) that solve this problem. Moreover, the problem gets harder (exponentially) as we increase its input (the number of variables).
+SAT is NP-Hard problem <b>[citation-needed]</b>, briefly that means there is no efficient algorithm (i.e., with polynomial complexity in the size of input) that solve this problem. More precisely, the problem gets harder exponentially as we increase its input.
 
 There's also an annual contest for SAT solvers (programs that solve the SAT problem) which are heavily used in the industry on the domain of formal verification.
 
@@ -33,17 +33,23 @@ Satisfying assignment: \\( \{ x_1=1,x_2=1,x_3=1,x_4=1 \} \\)
 
 ## Model counting
 
-Model counting is actually even harder than SAT, it is believed to be in $#P$ complexity class. Basically if in SAT we would like to decide if there's a solution or not, in model counting we want to find out how many solutions there are. Let's define it formally:
+Model counting is actually even harder than SAT, it is believed to reside in $#P$ complexity class <b>[citation-needed]</b>. Basically in SAT we would like to decide if there exists a solution, while in model counting we want to find out how many solutions there are. Let's define it formally:
 
 Let \\( V \\) be the set of boolean variables of \\( \varphi \\) and let $$ \sum $$ be the set of all possible assignments to these variables
 
 An assignment \\( \sigma \in \sum \\) is a mapping that assigns a value in \\( \{0,1\} \\) to each variable in \\( V \\)
 
-Define the weight \\( w(\sigma) \\) to be 1 if \\( \varphi \\) is satisfied by \\( \sigma \\) and 0 otherwise
+Define the weight function \\( w(\sigma) \\) to be 1 if \\( \varphi \\) is satisfied by \\( \sigma \\) and 0 otherwise
 
-In this context $$  W=\sum_{\sigma \in \sum}^{} w(\sigma)=\#(\varphi)  $$ is the actual number of solutions to  \\( \varphi \\)
+In this context $$  W=\sum_{\sigma \in \sum}^{} w(\sigma)  $$ is the actual number of solutions to  \\( \varphi \\)
+
+I will use the previous example to elaborate this, we already seen the assignment $\sigma = {1,1,1,1}$ is satisfying $\varphi$. All in all there could be total of $2^4$ assignments, calling a model counter for this instance returns 7 solutions. 
+
+As mentioned earlier, STS is an approximate model counter, while there are also exact counters available. Counting is hard, therefore if our interest is analyzing hard (or industrial-like) instances, we must consider using approximation methods.
 
 ## Entropy
+
+In our research work <b>citation needed</b> we define a new property for CNF (Conjunctive Normal Form) formulas, which are simply normalized SAT instances. Since SAT is NP-hard, and algorithms for solving it are mostly relied on heuristics, we argued there could be a measure that quantifies the hardness of an instance, or more intuitively the freedom we have in assigning its variables. Hence we turned to experimenting with Shannon's entropy, let's define it formally in our context:
 
 Let $$ \varphi $$ be a propositional CNF formula, $$ var(\varphi) $$ its set of variables and $$ lit(\varphi) $$ its set of literals. 
 
@@ -61,13 +67,13 @@ Entropy function is depicted below:
 
 
 
-**Motivation**: Since model counting is a $$ #P $$ problem, entropy is hard to compute and requires $$ n $$ calls to a model counter (as the number of variables in the input formula).
+**Reminder**: Model counting is a $$ #P $$ problem, entropy is hard to compute and requires $$ n $$ calls to model counter (as number of variables in input formula).
 
-# STS and patch explained
+### STS and patch explained
 
 ## Hashing and optimization
 
-STS, Search tree sampler is an approximate model counter designed by Stefano Ermon. It uses hashing and optimization technique in order to count solutions. Briefly, in the context of model counting, hashing means that on each 'level' the algorithm explores, we shrink the solutions space. Optimization means using a SAT  solver as an oracle to tell the algorithm if solutions still exist after shrinking. This technique is also used in probablistic inference problems.
+STS - Search Tree Sampler, is an approximate model counter [Ermon et al]. It uses hashing and optimization technique in order to count solutions. Briefly, in the context of model counting, hashing means that on each 'level' the algorithm explores, we shrink the solutions space. Optimization means using a SAT  solver as an oracle to tell the algorithm if solutions still exist after shrinking. It repeats this method until no solutions exists, which allows to approximate number of solutions, or models. This technique is also used in probabilistic inference problems.
 
 Specifically STS works by sampling uniform (controlled by a parameter) solutions. I took advantage of this mechanism and on each run of the algorithm I recorded those uniform solutions, in order to cheaply approximate the entropy, with only one run of STS instead of $$ n $$ runs - as the size of the formula. Computing the entropy requires to compute $$ r(v) $$ for each literal, $$ r(v) $$ is the ratio of solutions that the literal $$ v $$ appears in, out of all formula's solutions. So technically if we have a decent amount of uniform solutions, we can approximate the variables entropy.
 
@@ -75,17 +81,17 @@ Specifically STS works by sampling uniform (controlled by a parameter) solutions
 
 STS is built on top of Minisat, the algorithm is implemented on `Main.cc`
 
-In the following I'll describe my patch:
+In the following I'll describe my patch, you can open the code and follow:
 
 First I added the needed variables
 
 ```cpp
-std::vector<int> varSolCountPos;	// counter for pos
-std::vector<int> varSolCountNeg;	// counter for neg
-std::vector<double> rvPos;		// vector for r(v)
+// a vector for counting #(x) and #(!x)
+std::vector<int> varSolCountPos; // counter for pos
+std::vector<int> varSolCountNeg; // counter for neg
+std::vector<double> rvPos;     // vector for r(v)
 std::vector<double> rvNeg;
-std::vector<double> ev;			// vector for e(v)
-std::vector<double> entropy;		// vector for formula entropy for each sample
+std::vector<double> ev;      // vector for e(v)
 ```
 
 Then I initialized them:
@@ -118,47 +124,22 @@ if (OutputSamples[l][i] == 1)
 }					
 ```
 
-Added an option for printing the counts nicely (controlled by verb parameter)
+Added an option for printing the counts nicely (controlled by verb parameter), code is deprecated.
+
+When I have the counts I can compute $$ r(v) $$ and the entropy of each variable, notice I also keep a file to write output:
 
 ```cpp
-// print literals solution counters
-if (verb>1)
-{
-// print pos - #(!x)
-for (int iter=0; iter < var_num; iter++)
-{
-  if (iter!=var_num-1)
-  {
-  	if (verb>0)						
-  		printf("%d,",varSolCountPos[iter]);							
-  }
-  else
-  {
-  	if (verb>0)						
-  		printf("%d\n",varSolCountPos[iter]);							
-}
-
-}
-// print neg - #(x)
-for (int iter=0; iter < var_num; iter++)
-{
-  if (iter!=var_num-1)
-  {
-    if (verb>0)						
-    	printf("%d,",varSolCountNeg[iter]);							
-  }
-  else
-  {
-    if (verb>0)						
-    	printf("%d\n",varSolCountNeg[iter]);							
-  }
- }
-}
-```
-
-Now when I have the counts I can compute $$ r(v) $$ and the entropy of each variable:
-
-```cpp
+// file for outputting entropies
+FILE * pFile;
+// produce filename
+char* filename;
+char* buff;
+buff = basename(argv[1]);
+filename = strcat(buff, ".entropy.out");
+pFile = fopen(filename, "w");
+// header
+fprintf(pFile, "Var,TotalSols,PosLitSols,NegLitSols,EntropyShan\n");
+// compute r(v) and e(v)
 for (int iter=0; iter < var_num; iter++)
 {
   int total = varSolCountPos[iter] + varSolCountNeg[iter];
@@ -179,53 +160,73 @@ for (int iter=0; iter < var_num; iter++)
       logrvBar = 0;
   } 
   ev[iter] = -( (rvPos[iter]) * (logrv) ) - ( (rvNeg[iter])*(logrvBar) );
+  int varnum = iter+1;
+  fprintf(pFile, "%d,%d,%lf,%lf,%lf\n", varnum, total, rvPos[iter], rvNeg[iter], ev[iter]);
 }
 ```
 
 Computing the formula entropy is done by averaging the variables entropy:
 
 ```cpp
+// compute entropy
 
 double sumEntropy = 0;
 for (int iter=0; iter < var_num; iter++)
 {
-	sumEntropy += ev[iter];
+  sumEntropy += ev[iter];
 }
 
-entropy[ss] = sumEntropy / var_num;
-printf("entropy=%lf", entropy[ss]);
+double lastEntropy = sumEntropy / var_num;
  ```
  
- And finally printing the averaged entropy outside the loop (the algorithm runs `nsample` times)
+ And finally printing the averaged entropy, and handling the output file:
  
  ```cpp
- double avgEntropy = 0;
- for (int iter=0; iter<nsamples; iter++)
- {
- 	avgEntropy += entropy[iter];
- }
- avgEntropy = (double)avgEntropy / nsamples;
- printf("Average Entropy: %f\n", avgEntropy);
+printf("Estimated entropy: %lf\n", lastEntropy);
+fprintf(pFile, "#Estimated entropy: %lf\n", lastEntropy);
+fclose(pFile);
+printf("Output file: %s\n", filename);
  ```
 
-## Evaluation
+## Evaluation (or sanity check)
 
-I describe one easy formula (100 variables 400 clauses) results, which has an exact entropy (computed by exact model counter Cachet) of 0.673665 .
+Let's examine a simple formula with 3 variables:
 
-With the default parameters (k=50, nsamples=10) of STS I got: 0.610541
-The parameter k controlles the uniformity of the samples, the higher it is we have stronger guarantee that the solutions are uniform. nsamples is the number of times the algorithm runs.
+```
+p cnf 3 3
+1  2  3  0
+1  -2  3  0
+1  2  -3  0
+```
 
-Increasing k didn't improve the result (at least for easy formulas like this one)
+We can write it down and see that there are total 5 solutions:
+` { (1,0,0), (1,0,1), (1,1,0), (1,1,1), (0,1,1) } `
 
-Increasing nsamples on the other hand, got me near the actual entropy:
+Ratios of each literal (number of times it appears in solutions):
+` r(1) = 4/5, r(-1) = 1/5, r(2) = 3/5, r(-2) = 2/5, r(3) = 3/5, r(-3) = 2/5 `
 
-nsamples=20 , entropy=0.647872
+In this scenario of tiny formula the approximator sampled 50 solutions. Some of the solutions are identical of course, but usually it isn't the case where we handle larger formulas. In particular the samples should be sampled uniformly (randomly). Let's take a look of it's output:
 
-nsamples=40 , entropy=0.664543
+```
+Var,TotalSols,PosLitSols,NegLitSols,EntropyShan
+1,50,0.800000,0.200000,0.721928
+2,50,0.600000,0.400000,0.970951
+3,50,0.600000,0.400000,0.970951
+#Estimated entropy: 0.887943
+```
 
-nsamples=80 , entropy=0.673098
+The ratios (PosLitSols/NegLitSols) converged <b>exactly</b> to the correct values.
 
 ## References
--Stefano Ermon, Carla Gomes, and Bart Selman.
+Stefano Ermon, Carla Gomes, and Bart Selman.
+
 Uniform Solution Sampling Using a Constraint Solver As an Oracle.
+
 UAI-12. In Proc. 28th Conference on Uncertainty in Artificial Intelligence, August 2012.
+
+### About entropy property of CNF formulas
+Dor Cohen, Ofer Strichman
+
+The impact of Entropy and Solution Density on selected SAT heuristics
+
+abs/1706.05637, arXiv pre-print, June 2017
