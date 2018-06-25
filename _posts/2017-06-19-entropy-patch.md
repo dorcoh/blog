@@ -1,27 +1,23 @@
 ---
 layout: post
-title:  "Research project: CNF formula entropy approximation patch for STS explained"
+title:  "Research: CNF formula entropy approximation patch for STS explained"
 date:   2017-06-19 00:00:00 +0200
 categories: sat c++ 
 math: true
 ---
-I describe here a patch I've made to SearchTreeSampler - an approximate SAT model counter by [Stefano Ermon](https://cs.stanford.edu/~ermon/).
-lly
-The [patch](https://github.com/dorcoh/hashing-optimization) leverages the uniform solution sampling method to compute the entropy of CNF formula, a new property of SAT formulas which I'll define below.
+In this blog post I describe a patch I have written over SearchTreeSampler [1], a model counter for SAT instances. My [patch](https://github.com/dorcoh/hashing-optimization) leverages its uniform solution sampling method to compute the entropy of CNF formula, a new property of SAT instances defined below.
 
-So before we dive in, here's a bit of motivation:
+SAT is considered a NP-Hard problem, in fact it was proved to be NP-Complete [Cook-Levin 1971]. Briefly NP-hard means there is no efficient algorithm (i.e., with polynomial complexity in the size of input) that solve this problem, since it gets harder exponentially as we increase its input. NP-Complete is a special complexity class with some nice property - any NP-Hard problems could be reduced to problems that reside on NP-Complete, that means we can formulate (and solve) many other difficult problems using SAT. Notice I tried to keep the explanation intuitive as possible, those topics require at least few CS courses in order to understand, then forgive me for being less accurate.
 
-SAT is NP-Hard problem <b>[citation-needed]</b>, briefly that means there is no efficient algorithm (i.e., with polynomial complexity in the size of input) that solve this problem. More precisely, the problem gets harder exponentially as we increase its input.
+There is also an annual competition for SAT solvers (programs that solve the SAT problem) which are heavily used in the industry on the domain of formal verification.
 
-There's also an annual contest for SAT solvers (programs that solve the SAT problem) which are heavily used in the industry on the domain of formal verification.
+## Preliminaries
 
-# Preliminaries
-
-## SAT
+# SAT
 
 Let \\( X_1 ,... X_n \\) be boolean variables
 
-A boolean formula \\( \varphi \\) is said to be in CNF if it's a logical conjunction of a set of clauses \\( C_1,...,C_n \\), where each clause \\( C \\) is a logical disjunction of a set of literals (a base element that could be a variable or its negation). An example of a clause is: \\( (x_1 \vee \neg x_2) \\)
+A boolean formula \\( \varphi \\) is said to be in CNF if it's a logical conjunction of a set of clauses \\( C_1,...,C_n \\), where each clause \\( C \\) is a logical disjunction of a set of literals (a constraint over some variable, positive or negative). An example of a clause is: \\( (x_1 \vee \neg x_2) \\)
 
 SAT problem is defined as deciding whether there exists an assignment that satisfies \\( \varphi \\)
 
@@ -31,25 +27,29 @@ Satisfying assignment: \\( \{ x_1=1,x_2=1,x_3=1,x_4=1 \} \\)
 
 \\( \Longrightarrow \varphi \\) is SATISFIABLE
 
+* Note that industrial formulas could easily have millions of variables and clauses.
+
 ## Model counting
 
 Model counting is actually even harder than SAT, it is believed to reside in $#P$ complexity class <b>[citation-needed]</b>. Basically in SAT we would like to decide if there exists a solution, while in model counting we want to find out how many solutions there are. Let's define it formally:
 
-Let \\( V \\) be the set of boolean variables of \\( \varphi \\) and let $$ \sum $$ be the set of all possible assignments to these variables
+Let \\( V \\) be the set of boolean variables of \\( \varphi \\) and let $$ \Sigma $$ be the set of all possible assignments to these variables
 
 An assignment \\( \sigma \in \sum \\) is a mapping that assigns a value in \\( \{0,1\} \\) to each variable in \\( V \\)
 
 Define the weight function \\( w(\sigma) \\) to be 1 if \\( \varphi \\) is satisfied by \\( \sigma \\) and 0 otherwise
 
-In this context $$  W=\sum_{\sigma \in \sum}^{} w(\sigma)  $$ is the actual number of solutions to  \\( \varphi \\)
+In this context $$  W=\sum\limits_{\sigma \in \Sigma}^{} w(\sigma)  $$ is the actual number of solutions to  \\( \varphi \\)
 
 I will use the previous example to elaborate this, we already seen the assignment $\sigma = {1,1,1,1}$ is satisfying $\varphi$. All in all there could be total of $2^4$ assignments, calling a model counter for this instance returns 7 solutions. 
 
 As mentioned earlier, STS is an approximate model counter, while there are also exact counters available. Counting is hard, therefore if our interest is analyzing hard (or industrial-like) instances, we must consider using approximation methods.
 
+* I use the terms models/solutions interchangeably 
+
 ## Entropy
 
-In our research work <b>citation needed</b> we define a new property for CNF (Conjunctive Normal Form) formulas, which are simply normalized SAT instances. Since SAT is NP-hard, and algorithms for solving it are mostly relied on heuristics, we argued there could be a measure that quantifies the hardness of an instance, or more intuitively the freedom we have in assigning its variables. Hence we turned to experimenting with Shannon's entropy, let's define it formally in our context:
+In our research work [2] we define the entropy for CNF (Conjunctive Normal Form) formulas, which are simply normalized SAT instances. Since SAT is NP-hard, and algorithms for solving it are mostly relied on heuristics, we argued there could be a measure that quantifies the hardness of an instance, that hopefully could explain why some heuristics are better than others (check our paper for further details). Hence we turned to experimenting with Shannon's entropy [3], let's define it formally in our context:
 
 Let $$ \varphi $$ be a propositional CNF formula, $$ var(\varphi) $$ its set of variables and $$ lit(\varphi) $$ its set of literals. 
 
@@ -59,29 +59,28 @@ The entropy of a variable $$ v \in V $$ is defined by:
 
 $$ e(v) = -r(v)logr(v) -r(\bar v)logr(\bar v) $$ 
 
-_The entropy of a satisfiable formula is the average entropy of its variables_
-
-Entropy function is depicted below:
+<b>Definition:</b> The entropy of a satisfiable formula is the average entropy of its variables.
 
 ![Entropy function]({{ "/assets/entropyShan.png" | absolute_url }}){: .center-image }
-
+*<b>Figure 1:</b> Entropy reflects the freedom we have in assigning the variables* 
 
 
 **Reminder**: Model counting is a $$ #P $$ problem, entropy is hard to compute and requires $$ n $$ calls to model counter (as number of variables in input formula).
 
-### STS and patch explained
+## STS and patch explained
 
-## Hashing and optimization
+# Hashing and optimization
 
-STS - Search Tree Sampler, is an approximate model counter [Ermon et al]. It uses hashing and optimization technique in order to count solutions. Briefly, in the context of model counting, hashing means that on each 'level' the algorithm explores, we shrink the solutions space. Optimization means using a SAT  solver as an oracle to tell the algorithm if solutions still exist after shrinking. It repeats this method until no solutions exists, which allows to approximate number of solutions, or models. This technique is also used in probabilistic inference problems.
+STS - Search Tree Sampler [1], is an approximate model counter. It uses hashing and optimization technique in order to count solutions. In the context of model counting hashing means that on each 'level' the algorithm explores, we shrink the solutions space. Optimization means using a SAT solver as an oracle to tell the algorithm if solutions still exist after shrinking. See figure below, which describes how the counter repeats this method until no solutions exists, which allows to approximate number of solutions. This technique is also used in probabilistic inference problems.
 
-Specifically STS works by sampling uniform (controlled by a parameter) solutions. I took advantage of this mechanism and on each run of the algorithm I recorded those uniform solutions, in order to cheaply approximate the entropy, with only one run of STS instead of $$ n $$ runs - as the size of the formula. Computing the entropy requires to compute $$ r(v) $$ for each literal, $$ r(v) $$ is the ratio of solutions that the literal $$ v $$ appears in, out of all formula's solutions. So technically if we have a decent amount of uniform solutions, we can approximate the variables entropy.
+![Shrink-solution-space]({{ "/assets/entropyShrink.png" | absolute_url }}){: .center-image }
+*<b>Figure 2:</b> Algorithm for approximating model count, on each step it randomly partition $\Sigma$ into $2^m$ cells, and then it picks one cell to invoke regular SAT solver which decides if to stop or continue (could also be wrong, hence we consider it as an oracle). Number of models is then approximated using $m$.* [citation-needed]
+
+Computing entropy requires to compute $$ r(v) $$ for each literal, $$ r(v) $$ is the ratio of solutions that the literal $$ v $$ appears in, out of all formula's solutions. So technically if we have a decent amount of uniform solutions, we can approximate the variables entropy. STS works by sampling uniform (controlled by a parameter) solutions. I took advantage of this mechanism and on each run of the algorithm I recorded those uniform solutions, in order to cheaply approximate the entropy, with only one run of STS instead of $$ n $$ runs (input size of the formula).
 
 ## Patch explained
 
-STS is built on top of Minisat, the algorithm is implemented on `Main.cc`
-
-In the following I'll describe my patch, you can open the code and follow:
+STS is built on top of Minisat, the algorithm is implemented on `Main.cc`. In the following I describe my patch, you can open the code and follow:
 
 First I added the needed variables
 
@@ -94,7 +93,7 @@ std::vector<double> rvNeg;
 std::vector<double> ev;      // vector for e(v)
 ```
 
-Then I initialized them:
+Then initialized them:
 
 ```cpp
 varSolCountNeg.resize(var_num);
@@ -112,7 +111,7 @@ for (int iter=0; iter<var_num; iter++)
 }
 ```
 
-I used the loop for outputting solutions to count the number of times each literal appear in the solutions, so I added the following lines:
+Inside the loop for outputting solutions we count the number of times each literal appear in the solutions:
 
 ```cpp
 // compute #(x) and #(!x)
@@ -124,9 +123,7 @@ if (OutputSamples[l][i] == 1)
 }					
 ```
 
-Added an option for printing the counts nicely (controlled by verb parameter), code is deprecated.
-
-When I have the counts I can compute $$ r(v) $$ and the entropy of each variable, notice I also keep a file to write output:
+When we have the counts we can use them to approximate $$ r(v) $$ and the entropy of each variable, notice I also keep a file to write output:
 
 ```cpp
 // file for outputting entropies
@@ -179,7 +176,7 @@ for (int iter=0; iter < var_num; iter++)
 double lastEntropy = sumEntropy / var_num;
  ```
  
- And finally printing the averaged entropy, and handling the output file:
+ Finally printing the averaged entropy, and handling the output file:
  
  ```cpp
 printf("Estimated entropy: %lf\n", lastEntropy);
@@ -188,9 +185,13 @@ fclose(pFile);
 printf("Output file: %s\n", filename);
  ```
 
-## Evaluation (or sanity check)
+## Evaluation
 
 Let's examine a simple formula with 3 variables:
+
+$ \varphi = (X_1 \vee X_2 \vee X_3) \wedge (X_1 \vee \neg X_2 \vee X_3) \wedge (X_1 \vee X_2 \vee \neg X_3)$
+
+This is how its CNF looks like:
 
 ```
 p cnf 3 3
@@ -200,12 +201,11 @@ p cnf 3 3
 ```
 
 We can write it down and see that there are total 5 solutions:
-` { (1,0,0), (1,0,1), (1,1,0), (1,1,1), (0,1,1) } `
+`{ (1,0,0), (1,0,1), (1,1,0), (1,1,1), (0,1,1) }`
 
-Ratios of each literal (number of times it appears in solutions):
-` r(1) = 4/5, r(-1) = 1/5, r(2) = 3/5, r(-2) = 2/5, r(3) = 3/5, r(-3) = 2/5 `
+Ratios of each literal (number of times it appears in solutions): `{r(1) = 4/5, r(-1) = 1/5, r(2) = 3/5, r(-2) = 2/5, r(3) = 3/5, r(-3) = 2/5}`
 
-In this scenario of tiny formula the approximator sampled 50 solutions. Some of the solutions are identical of course, but usually it isn't the case where we handle larger formulas. In particular the samples should be sampled uniformly (randomly). Let's take a look of it's output:
+In this scenario of tiny formula the approximator sampled 50 solutions. Some of the solutions are identical of course, but usually it isn't the case where we handle larger formulas. In particular the samples should be sampled uniformly (randomly). Let's take a look of output:
 
 ```
 Var,TotalSols,PosLitSols,NegLitSols,EntropyShan
@@ -215,18 +215,11 @@ Var,TotalSols,PosLitSols,NegLitSols,EntropyShan
 #Estimated entropy: 0.887943
 ```
 
-The ratios (PosLitSols/NegLitSols) converged <b>exactly</b> to the correct values.
+The ratios (PosLitSols/NegLitSols) converged exactly to the correct values.
 
 ## References
-Stefano Ermon, Carla Gomes, and Bart Selman.
+1. Stefano Ermon, Carla Gomes, and Bart Selman.Uniform Solution Sampling Using a Constraint Solver As an Oracle. UAI-12. In Proc. 28th Conference on Uncertainty in Artificial Intelligence, August 2012.
 
-Uniform Solution Sampling Using a Constraint Solver As an Oracle.
+2. Dor Cohen, Ofer Strichman. The impact of Entropy and Solution Density on selected SAT heuristics. abs/1706.05637, arXiv pre-print, June 2017
 
-UAI-12. In Proc. 28th Conference on Uncertainty in Artificial Intelligence, August 2012.
-
-### About entropy property of CNF formulas
-Dor Cohen, Ofer Strichman
-
-The impact of Entropy and Solution Density on selected SAT heuristics
-
-abs/1706.05637, arXiv pre-print, June 2017
+3. Shannon, C.E. (1948), "A Mathematical Theory of Communication", Bell System Technical Journal, 27, pp. 379–423 & 623–656, July & October, 1948.
