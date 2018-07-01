@@ -76,7 +76,7 @@ STS - Search Tree Sampler [1], is an approximate model counter. It uses hashing 
 * Hashing means that on each 'level' the algorithm explores, we shrink the solutions space. 
 * Optimization means using a SAT solver as an oracle to tell the algorithm if solutions still exist after shrinking. 
 
-See figure below, which describes how the counter repeats this method until no solutions exists, which in turn allows to approximate number of solutions. This technique is also used in probabilistic inference problems.
+See figure below, which describes how the counter repeats this method until no solutions exists, which in turn allows us to approximate number of solutions. This technique is also used in probabilistic inference problems.
 
 ![Shrink-solution-space]({{ "/assets/entropyShrink.png" | absolute_url }}){: .center-image }
 *<b>Figure 2:</b> Algorithm for approximating model count, on each step it randomly partition $\Sigma$ into $2^m$ cells, and then it picks one cell to invoke regular SAT solver which decides if to stop or continue (could also be wrong, hence we consider it as an oracle). Number of models is then approximated using $m$.* [citation-needed]
