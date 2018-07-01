@@ -7,7 +7,8 @@ math: true
 ---
 In this blog post I describe a patch I have written over SearchTreeSampler [1], a model counter for SAT instances. My [patch](https://github.com/dorcoh/hashing-optimization) leverages its uniform solution sampling method to compute the entropy of CNF formula, a new property of SAT instances defined below.
 
-SAT is considered a NP-Hard problem, in fact it was proved to be NP-Complete [Cook-Levin 1971]. Briefly NP-hard means there is no efficient algorithm (i.e., with polynomial complexity in the size of input) that solve this problem, since it gets harder exponentially as we increase its input. NP-Complete is a special complexity class with some nice property - any NP-Hard problems could be reduced to problems that reside on NP-Complete, that means we can formulate (and solve) many other difficult problems using SAT. Notice I tried to keep the explanation intuitive as possible, those topics require at least few CS courses in order to understand, then forgive me for being less accurate.
+
+SAT is a decision problem, meaning the algorithm that solve it should return yes or no. Without diving into the definitions of complexity classes I'll just note that SAT is very important problem, because other similar hard problems (in the sense of their hardness) could be reduced to SAT. More formally it is considered to be in NP-Complete complexity class [Cook-Levin 1971], though you should have CS background to understand the concepts in that article, 
 
 There is also an annual competition for SAT solvers (programs that solve the SAT problem) which are heavily used in the industry on the domain of formal verification.
 
@@ -31,7 +32,7 @@ Satisfying assignment: \\( \{ x_1=1,x_2=1,x_3=1,x_4=1 \} \\)
 
 ## Model counting
 
-Model counting is actually even harder than SAT, it is believed to reside in $#P$ complexity class <b>[citation-needed]</b>. Basically in SAT we would like to decide if there exists a solution, while in model counting we want to find out how many solutions there are. Let's define it formally:
+Model counting is actually even harder than SAT, it is believed to reside in $#P$ complexity class [M. R. Garey and D. S. Johnson 1979]. Basically in SAT we would like to decide if there exists a solution, while in model counting we want to find out how many solutions there are. Let's define it formally:
 
 Let \\( V \\) be the set of boolean variables of \\( \varphi \\) and let $$ \Sigma $$ be the set of all possible assignments to these variables
 
@@ -49,7 +50,7 @@ As mentioned earlier, STS is an approximate model counter, while there are also 
 
 ## Entropy
 
-In our research work [2] we define the entropy for CNF (Conjunctive Normal Form) formulas, which are simply normalized SAT instances. Since SAT is NP-hard, and algorithms for solving it are mostly relied on heuristics, we argued there could be a measure that quantifies the hardness of an instance, that hopefully could explain why some heuristics are better than others (check our paper for further details). Hence we turned to experimenting with Shannon's entropy [3], let's define it formally in our context:
+In our research work [2] we define the entropy for CNF (Conjunctive Normal Form) formulas, which are simply normalized SAT instances. Since algorithms for solving it are mostly relied on heuristics (SAT is NP-Hard), our motivation was to find a measure that quantifies the hardness of a single instance, that hopefully could explain why some heuristics are better than others. Hence we turned to experimenting with Shannon's entropy [3], let's define it formally in our context:
 
 Let $$ \varphi $$ be a propositional CNF formula, $$ var(\varphi) $$ its set of variables and $$ lit(\varphi) $$ its set of literals. 
 
@@ -71,7 +72,11 @@ $$ e(v) = -r(v)logr(v) -r(\bar v)logr(\bar v) $$
 
 # Hashing and optimization
 
-STS - Search Tree Sampler [1], is an approximate model counter. It uses hashing and optimization technique in order to count solutions. In the context of model counting hashing means that on each 'level' the algorithm explores, we shrink the solutions space. Optimization means using a SAT solver as an oracle to tell the algorithm if solutions still exist after shrinking. See figure below, which describes how the counter repeats this method until no solutions exists, which allows to approximate number of solutions. This technique is also used in probabilistic inference problems.
+STS - Search Tree Sampler [1], is an approximate model counter. It uses hashing and optimization technique in order to count solutions. In the context of model counting:
+* Hashing means that on each 'level' the algorithm explores, we shrink the solutions space. 
+* Optimization means using a SAT solver as an oracle to tell the algorithm if solutions still exist after shrinking. 
+
+See figure below, which describes how the counter repeats this method until no solutions exists, which in turn allows to approximate number of solutions. This technique is also used in probabilistic inference problems.
 
 ![Shrink-solution-space]({{ "/assets/entropyShrink.png" | absolute_url }}){: .center-image }
 *<b>Figure 2:</b> Algorithm for approximating model count, on each step it randomly partition $\Sigma$ into $2^m$ cells, and then it picks one cell to invoke regular SAT solver which decides if to stop or continue (could also be wrong, hence we consider it as an oracle). Number of models is then approximated using $m$.* [citation-needed]
@@ -185,7 +190,7 @@ fclose(pFile);
 printf("Output file: %s\n", filename);
  ```
 
-## Evaluation
+## Sanity check
 
 Let's examine a simple formula with 3 variables:
 
