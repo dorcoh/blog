@@ -8,7 +8,7 @@ math: true
 In this blog post I describe a patch I have written over SearchTreeSampler [1], a model counter for SAT instances. My [patch](https://github.com/dorcoh/hashing-optimization) leverages its uniform solution sampling method to compute the entropy of CNF formula, a new property of SAT instances defined below.
 
 
-SAT is a decision problem, meaning the algorithm that solve it should return yes or no. Without diving into the definitions of complexity classes I'll just note that SAT is very important problem, because other similar hard problems (in the sense of their hardness) could be reduced to SAT. More formally it is considered to be in NP-Complete complexity class [Cook-Levin 1971], though you should have CS background to understand the concepts in that article, 
+SAT is a decision problem, meaning the algorithm that solve it should return yes or no. Without diving into definitions of complexity classes I'll just note that SAT is very important problem, because other similar hard problems (in the sense of their hardness) could be reduced to SAT. More formally it is considered to be in NP-Complete complexity class [Cook-Levin 1971], notice you should have CS background to understand the concepts in that article.
 
 There is also an annual competition for SAT solvers (programs that solve the SAT problem) which are heavily used in the industry on the domain of formal verification.
 
@@ -76,16 +76,16 @@ STS - Search Tree Sampler [1], is an approximate model counter. It uses hashing 
 * Hashing means that on each 'level' the algorithm explores, we shrink the solutions space. 
 * Optimization means using a SAT solver as an oracle to tell the algorithm if solutions still exist after shrinking. 
 
-See figure below, which describes how the counter repeats this method until no solutions exists, which in turn allows us to approximate number of solutions. This technique is also used in probabilistic inference problems.
+See figure below, which describes how the counter repeats this method until no solutions exists, which in turn allows us to approximate number of solutions. This technique is also common in probabilistic inference problems.
 
 ![Shrink-solution-space]({{ "/assets/entropyShrink.png" | absolute_url }}){: .center-image }
-*<b>Figure 2:</b> Algorithm for approximating model count, on each step it randomly partition $\Sigma$ into $2^m$ cells, and then it picks one cell to invoke regular SAT solver which decides if to stop or continue (could also be wrong, hence we consider it as an oracle). Number of models is then approximated using $m$.* [citation-needed]
+*<b>Figure 2:</b> Approximate model count, on each step randomly partition $\Sigma$ into $2^m$ cells, then invoke SAT solver which decides if to stop or continue (an oracle - could also be wrong). Number of models is then approximated using $m$. In this case after 2 iterations solutions still exist, hence $2^2$ solutions (green cells). Taken from [Perturbations, Optimization, and Statistics 2016]* 
 
 Computing entropy requires to compute $$ r(v) $$ for each literal, $$ r(v) $$ is the ratio of solutions that the literal $$ v $$ appears in, out of all formula's solutions. So technically if we have a decent amount of uniform solutions, we can approximate the variables entropy. STS works by sampling uniform (controlled by a parameter) solutions. I took advantage of this mechanism and on each run of the algorithm I recorded those uniform solutions, in order to cheaply approximate the entropy, with only one run of STS instead of $$ n $$ runs (input size of the formula).
 
 ## Patch explained
 
-STS is built on top of Minisat, the algorithm is implemented on `Main.cc`. In the following I describe my patch, you can open the code and follow:
+STS is built on top of Minisat [4], the algorithm is implemented on `Main.cc`. In the following I describe my patch, you can open the code and follow:
 
 First I added the needed variables
 
@@ -228,3 +228,5 @@ The ratios (PosLitSols/NegLitSols) converged exactly to the correct values.
 2. Dor Cohen, Ofer Strichman. The impact of Entropy and Solution Density on selected SAT heuristics. abs/1706.05637, arXiv pre-print, June 2017
 
 3. Shannon, C.E. (1948), "A Mathematical Theory of Communication", Bell System Technical Journal, 27, pp. 379–423 & 623–656, July & October, 1948.
+
+4. Niklas Een, Niklas Sörensson , MiniSat - A SAT solver with conflict-clause minimization, SAT Poster 2005
