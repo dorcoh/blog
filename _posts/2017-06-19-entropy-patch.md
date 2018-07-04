@@ -8,7 +8,7 @@ math: true
 In this blog post I describe a patch I have written over SearchTreeSampler [1], a model counter for SAT instances. My [patch](https://github.com/dorcoh/hashing-optimization) leverages its uniform solution sampling method to compute the entropy of CNF formula, a new property of SAT instances defined below.
 
 
-SAT is a decision problem, meaning the algorithm that solve it should return yes or no. Without diving into definitions of complexity classes I'll just note that SAT is very important problem, because other similar hard problems (in the sense of their hardness) could be reduced to SAT. More formally it is considered to be in NP-Complete complexity class [Cook-Levin 1971], notice you should have CS background to understand the concepts in that article.
+SAT is a decision problem, meaning the algorithm that solve it should return yes or no. Without diving into definitions of complexity classes I'll just note that SAT is very important problem, because other similar hard problems (in the sense of their hardness) could be reduced to SAT. More formally it is considered to be in NP-Complete complexity class [Cook-Levin 1971] - some compute science background is required.
 
 There is also an annual competition for SAT solvers (programs that solve the SAT problem) which are heavily used in the industry on the domain of formal verification.
 
@@ -79,7 +79,7 @@ STS - Search Tree Sampler [1], is an approximate model counter. It uses hashing 
 See figure below, which describes how the counter repeats this method until no solutions exists, which in turn allows us to approximate number of solutions. This technique is also common in probabilistic inference problems.
 
 ![Shrink-solution-space]({{ "/assets/entropyShrink.png" | absolute_url }}){: .center-image }
-*<b>Figure 2:</b> Approximate model count, on each step randomly partition $\Sigma$ into $2^m$ cells, then invoke SAT solver which decides if to stop or continue (an oracle - could also be wrong). Number of models is then approximated using $m$. In this case after 2 iterations solutions still exist, hence $2^2$ solutions (green cells). Taken from [Perturbations, Optimization, and Statistics 2016]* 
+*<b>Figure 2:</b> Approximate model count, on each step randomly partition $\Sigma$ into $2^m$ cells, then invoke SAT solver which decides if to stop or continue (an oracle - could also be wrong). Number of models is then approximated using $m$. In this case after 2 iterations solutions still exist, hence $2^2$ solutions (green cells). Figure and explanation taken from [5]* 
 
 Computing entropy requires to compute $$ r(v) $$ for each literal, $$ r(v) $$ is the ratio of solutions that the literal $$ v $$ appears in, out of all formula's solutions. So technically if we have a decent amount of uniform solutions, we can approximate the variables entropy. STS works by sampling uniform (controlled by a parameter) solutions. I took advantage of this mechanism and on each run of the algorithm I recorded those uniform solutions, in order to cheaply approximate the entropy, with only one run of STS instead of $$ n $$ runs (input size of the formula).
 
@@ -230,3 +230,9 @@ The ratios (PosLitSols/NegLitSols) converged exactly to the correct values.
 3. Shannon, C.E. (1948), "A Mathematical Theory of Communication", Bell System Technical Journal, 27, pp. 379–423 & 623–656, July & October, 1948.
 
 4. Niklas Een, Niklas Sörensson , MiniSat - A SAT solver with conflict-clause minimization, SAT Poster 2005
+
+5. Perturbations, Optimization, and Statistics (chapter 9) - edited by Tamir Hazan, George Papandreou and Daniel Tarlow, MIT press 2016
+
+* This research work has been conducted in academia through a course about [5], guided by Tamir Hazan. There is also a [seminar talk][seminar] I have presented back then, which summarizes the relevant chapter in the book.
+
+[seminar]: https://github.com/dorcoh/entropyApproximator/blob/master/Seminar.pdf
