@@ -233,6 +233,6 @@ The ratios (PosLitSols/NegLitSols) converged exactly to the correct values.
 
 5. Perturbations, Optimization, and Statistics (chapter 9) - edited by Tamir Hazan, George Papandreou and Daniel Tarlow, MIT press 2016
 
-* This research work has been conducted in academia through a course about [5], guided by Tamir Hazan. There is also a [seminar talk][seminar] I have presented back then, which summarizes the relevant chapter in the book.
+* [Seminar talk][seminar] I have presented, which summarizes the relevant chapter on [5].
 
 [seminar]: https://github.com/dorcoh/entropyApproximator/blob/master/Seminar.pdf
