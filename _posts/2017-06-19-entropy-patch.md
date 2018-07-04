@@ -8,7 +8,7 @@ math: true
 In this blog post I describe a patch I have written over SearchTreeSampler [1], a model counter for SAT instances. My [patch](https://github.com/dorcoh/hashing-optimization) leverages its uniform solution sampling method to compute the entropy of CNF formula, a new property of SAT instances defined below.
 
 
-SAT is a decision problem, meaning the algorithm that solve it should return yes or no. Without diving into definitions of complexity classes I'll just note that SAT is very important problem, because other similar hard problems (in the sense of their hardness) could be reduced to SAT. More formally it is considered to be in NP-Complete complexity class [Cook-Levin 1971] - some compute science background is required.
+SAT is a decision problem, meaning the algorithm that solve it should return yes or no. Without diving into definitions of complexity classes I'll just note that SAT is very important problem, because other similar hard problems (in the sense of their hardness) could be reduced to SAT. More formally it is considered to be in NP-Complete complexity class [Cook-Levin 1971] - some computer science background is required.
 
 There is also an annual competition for SAT solvers (programs that solve the SAT problem) which are heavily used in the industry on the domain of formal verification.
 
