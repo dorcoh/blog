@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Tutorial: Contribute to sklearn, or other open-source projects"
-date:   2018-03-07 00:00:00 +0200
+date:   2018-07-03 00:00:00 +0200
 categories: python machine-learning github opensource 
 comments: true
 ---
