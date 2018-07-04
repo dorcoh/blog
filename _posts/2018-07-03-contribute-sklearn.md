@@ -231,7 +231,7 @@ Specifically for `scikit` they follow coding standards (see on their contributin
 
 Next push changes and [submit a pull request][pull-request], then wait for code review.
 
-Hope you enjoyed this post, happy comitting!
+Hope you enjoyed this post, happy committing!
 
 
 # References
