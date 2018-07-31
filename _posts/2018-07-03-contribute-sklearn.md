@@ -37,6 +37,10 @@ Then you can sync your local repository with scikit's using:
 
  `git fetch upstream`
 
+and then
+
+ `git pull upstream master`
+
 Instead of the usual `git pull` which will sync with origin (though you can configure git to pull automatically from upstream, see references for further details). 
 
 And when you start working on a new feature you should initialize a branch by:
