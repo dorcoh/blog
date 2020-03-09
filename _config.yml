@@ -13,11 +13,10 @@
 # you will see them accessed via {{ site.title }}, {{ site.email }}, and so on.
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
-title: Intractable - Code, Optimization, Machine Learning and Statistics.
+title: Intractable - Personal web site and blog
 email: dorcoh@gmail.com
 description: >- # this means to ignore newlines until "baseurl:"
-  Data has increasing impact on our life, over the recent years industries have shifted through making use of massive data streams.
-  In this blog I write about various data related topics including statistics, machine learning algorithms, optimization methods and programming.
+  
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "" # the base hostname & protocol for your site, e.g. http://example.com
 github_username:  dorcoh
