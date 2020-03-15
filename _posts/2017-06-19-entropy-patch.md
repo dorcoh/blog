@@ -79,7 +79,7 @@ STS - Search Tree Sampler [1], is an approximate model counter. It uses hashing 
 See figure below, which describes how the counter repeats this method until no solutions exists, which in turn allows us to approximate number of solutions. This technique is also common in probabilistic inference problems.
 
 ![Shrink-solution-space]({{ "/assets/entropyShrink.png" | absolute_url }}){: .center-image }
-*<b>Figure 2:</b> Approximate model count, on each step randomly partition $\Sigma$ into $2^m$ cells, then invoke SAT solver which decides if to stop or continue (an oracle - could also be wrong). Number of models is then approximated using $m$. In this case after 2 iterations solutions still exist, hence $2^2$ solutions (green cells). Figure and explanation taken from [5]* 
+*<b>Figure 2:</b> Approximate model counter: on each step $m$ (starting from $m=0$) randomly partition half of $\Sigma$, then invoke a SAT solver to decide if solutions still exist, if not the algorithm halts. Number of models is then approximated using the number of total iterations $m$. In the case illustrated, after 2 iterations solutions still exist and the next iteration would lead to halt, hence the checked formula has $2^2$ solutions (green cells depicted on left). Notice there could be a case where the counter may randomly partition a solution cell, and then the algorithm will stop ahead of time, resulting with a non-correct $m$. Figure taken from [5]* 
 
 Computing entropy requires to compute $$ r(v) $$ for each literal, $$ r(v) $$ is the ratio of solutions that the literal $$ v $$ appears in, out of all formula's solutions. So technically if we have a decent amount of uniform solutions, we can approximate the variables entropy. STS works by sampling uniform (controlled by a parameter) solutions. I took advantage of this mechanism and on each run of the algorithm I recorded those uniform solutions, in order to cheaply approximate the entropy, with only one run of STS instead of $$ n $$ runs (input size of the formula).
 
@@ -223,9 +223,9 @@ Var,TotalSols,PosLitSols,NegLitSols,EntropyShan
 The ratios (PosLitSols/NegLitSols) converged exactly to the correct values.
 
 ## References
-1. Stefano Ermon, Carla Gomes, and Bart Selman.Uniform Solution Sampling Using a Constraint Solver As an Oracle. UAI-12. In Proc. 28th Conference on Uncertainty in Artificial Intelligence, August 2012.
+1. Stefano Ermon, Carla Gomes, and Bart Selman. Uniform Solution Sampling Using a Constraint Solver As an Oracle. UAI-12. In Proc. 28th Conference on Uncertainty in Artificial Intelligence, August 2012.
 
-2. Dor Cohen, Ofer Strichman. The impact of Entropy and Solution Density on selected SAT heuristics. abs/1706.05637, arXiv pre-print, June 2017
+2. Dor Cohen, Ofer Strichman, The Impact of Entropy and Solution Density on Selected SAT Heuristics. Entropy 2018, 20, 713. 
 
 3. Shannon, C.E. (1948), "A Mathematical Theory of Communication", Bell System Technical Journal, 27, pp. 379–423 & 623–656, July & October, 1948.
 
