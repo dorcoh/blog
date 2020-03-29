@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Research project: CNF formula entropy approximation patch applied to STS model counter counter"
+title:  "Research project: CNF formula entropy approximation patch, applied to STS model counter"
 date:   2017-06-19 00:00:00 +0200
 categories: sat c++ 
 math: true
