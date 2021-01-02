@@ -11,7 +11,7 @@ math: true
 Causal inference allows us to estimate the causal interactions between random variables. 
 It enables us to ask questions such as: "Does some medication lowers blood pressure?". 
 Throughout this post I will describe a mini project with the goal of estimating the causal effect in multiple treatment setting 
-(e.g., given a number of medications, which ones lowers blood pressure most significantly), 
+(e.g., given a number of medications, which one lowers blood pressure most significantly), 
 while in the common framework we usually consider binary treatment setting. 
 
 ### Background (Potential Outcomes)
