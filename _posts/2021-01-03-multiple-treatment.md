@@ -11,8 +11,8 @@ math: true
 Causal inference allows us to estimate the causal interactions between random variables. 
 It enables us to ask questions such as: "Does some medication lowers blood pressure?". 
 Throughout this post I will describe a mini project with the goal of estimating the causal effect in multiple treatment setting 
-(e.g., given number of medications, which ones lowers blood pressure most significantly), 
-while in the common frameworks we usually consider binary treatment setting. 
+(e.g., given a number of medications, which ones lowers blood pressure most significantly), 
+while in the common framework we usually consider binary treatment setting. 
 
 ### Background (Potential Outcomes)
 
@@ -47,9 +47,9 @@ Consider now \\( k \\) treatments that a subject may receive, let \\( \mathbb{T}
 of possible treatments. For each subject, we may observe \\( k \\) different potential outcomes:  $\\{Y_i(t_1), ....Y_i(t_k) \\}$. 
 To estimate the causal effect in multiple-treatment setting, the following assumptions are required to hold:
 1. **Stable Unit Treatment Value Assumption** (SUTVA) for multiple treatments - i.e. for each subject, 
-the set of potential outcomes is identical and there are no "hidden" treatments which may lead to different unknown outcome.
+the set of potential outcomes is identical and there are no "hidden" treatments which may lead to a different unknown outcome.
 2. The **consistency assumption** extends to: \\( Y^{obs_i} = I_{i1} * Y_i(t_1) + ... + I_{ik} * Y_i(t_k) \\), 
-where $I_{ik}$ denotes the indicator function of whether subject $i$ received treatment $k$.
+where $I_{ik}$ denotes an indicator function which gets 1 whether subject $i$ received treatment $k$ and 0 otherwise.
 
 Additionally, we require the treatment assignment mechanism to be individualistic 
 (i.e. the $N$ subjects represent a random sample from an infinite super population), and **unconfounded**:
@@ -95,7 +95,7 @@ $$
 
 <br/>
 
-and then we demand the following to be satisfied for each $x \in X$:  
+and then we require the following to be satisfied for each $x \in X$:  
 
 $$ \hat{r}(t_i, x) \in (\hat{r}\_{min}(t_i, X),\hat{r}\_{max}(t_i, X) ) $$
 
@@ -126,13 +126,13 @@ A histogram of the GPS before and after trimming subjects, can be seen in **Figu
 the GPS after re-fitting the model with only eligible subjects. Estimating the GPS was done by multivariate *Logistic Regression*. 
 
 ![GPS]({{ "/assets/multiple-treatment/gps_hist.png" | absolute_url }}){: .center-image }
-*Propensity scores across three versions of our dataset: all samples, eligible samples, and eligible samples after refitting their GPS score.*
+*Propensity scores histograms for (above to below): all samples, eligible samples, and eligible samples after refitting their GPS score.*
 
 
 The full dataset had $46,700$ subjects, with $22$ covariates. After dropping non-eligible units we had $31,984$ units. 
 The true ATEs and number of subjects for each treatment group, in each of the datasets, can be observed in **Table 1**. 
 Note we have sub-sampled parts of the data, to cause imbalances, so enforcing common support will have some effect. 
-To generate the dataset we assisted with [3] framework which provide methods for this goal, 
+To generate the dataset we assisted with [3] framework which provides methods for this goal, 
 and [4] for training the classifiers. 
 
  Treatment Group Key| True ATE (All) |  \# Subjects (All) |  True ATE (Eligible) |  \# Subjects (Eligible)      
@@ -146,7 +146,7 @@ control group (c)                  |        0.000000 |        9899 |            
 *<b>Table 1:</b> The true ATEs and number of subjects receiving each treatment, across the two versions of our dataset (All, Eligible).* 
 
 ### Experiments
-We experimented with two types of methods, the first is *Covariate Adjustment*, and the second is *Matching* 
+To estimate the causal effect, we experimented with two types of methods, the first is known as **Covariate Adjustment**, and the second is **Matching** 
 (please note we assume the readers are familiar with these methods, otherwise - there are plenty of sources to learn more about them). 
 Our intention was to check whether naive methods (i.e. which were intended to handle binary treatment settings) 
 were sufficient for estimating the causal effect in multiple treatment setting. For evaluating the covariate 
@@ -245,7 +245,7 @@ This technical report provides some empirical evidence that methods which were i
 To further check our conclusions, we may experiment with additional types of datasets, possibly with larger treatments domain. 
 An interesting question is whether the effectiveness of these methods remain decent even when increasing the number of treatments. 
 As follows from the results and in the spirit of [6], extending the experiments with matching algorithms may be a good future direction as well. 
-Specifically, we can match subjects with other distances types (e.g., Mahalanobis distance), and choose other method for enforcing common support. 
+Specifically, we can match subjects with other distances types (e.g., Mahalanobis distance), and choose other methods for enforcing common support. 
 Then we could compare these results to the specialized (multi treatment) matching algorithms introduced in [6]. 
 Another method which we have not explored yet, is to train $k$ causal forests [7] for each treatment group, which can be 
 compared to [8] who provided an extension for causal forest to multiple treatment setting.
