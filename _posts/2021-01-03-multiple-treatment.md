@@ -126,7 +126,7 @@ A histogram of the GPS before and after trimming subjects, can be seen in **Figu
 the GPS after re-fitting the model with only eligible subjects. Estimating the GPS was done by multivariate *Logistic Regression*. 
 
 ![GPS]({{ "/assets/multiple-treatment/gps_hist.png" | absolute_url }}){: .center-image }
-*Propensity scores histograms for (above to below): all samples, eligible samples, and eligible samples after refitting their GPS score.*
+*Propensity scores histograms for (top to bottom): all samples, eligible samples, and eligible samples after refitting their GPS score.*
 
 
 The full dataset had $46,700$ subjects, with $22$ covariates. After dropping non-eligible units we had $31,984$ units. 
