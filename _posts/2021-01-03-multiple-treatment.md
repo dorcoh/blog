@@ -252,7 +252,7 @@ compared to [8] who provided an extension for causal forest to multiple treatmen
 
 ### Acknowledgment
 
-This work was completed as a final project within "Introduction to Causal Inference" course by Uri Shalit and Rom Gutman, enrolled at the Technion. 
+This work was completed as a final project within "Introduction to Causal Inference" course by Uri Shalit and Rom Gutman, which took place at the Technion. 
 
 ### References
 1. Lopez, Michael J., and Roee Gutman. "Estimation of causal effects with multiple treatments: a review and new ideas." Statistical Science 32.3 (2017): 432-454.
