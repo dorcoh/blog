@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Technical report: Naive methods for estimating the causal effect in multiple treatment setting"
-date:   2021-01-31 00:00:00 +0200
+date:   2021-02-01 00:00:00 +0200
 categories: causal-inference statistics machine-learning python 
 math: true
 ---
@@ -77,12 +77,12 @@ $$
 
 #### Generalized Propensity Score
 
-The probability for a treatment assignment $T=t$ given $X_i$ is noted as $r(t, X_i)$, and is also referred to as the *Propensity Score* 
+The probability for a treatment assignment $T=t$ given $X=x$ is noted as $r(t, X)$, and is also referred to as the *Propensity Score* 
 (or *Generalized Propensity Score* - **GPS**, in the case of multiple treatments). More formally:
 
 $$
 \begin{aligned}
- P(T_i = t | X_i) \equiv \; r(t, X_i)
+ P(T = t | X=x) \equiv \; r(t, X)
 \end{aligned}
 $$
 
@@ -93,21 +93,21 @@ $$
 $$
 
 Under these assumptions, we can compare subjects with similar GPS and expect well estimated effects. 
-Usually, $R(X)$ is unknown, however we may estimate it with any statistical method.
+Usually, $R(X)$, the GPS vector, is unknown, however we may estimate it with any statistical method.
 
 To enforce the common support assumption, one may use the estimate $\hat{R(x)}$ to trim subjects which do not rely in 
 the rectangular common support boundaries [1]. Specifically, for each treatment group we measure 
-lower and upper bounds for the GPS:
+lower and upper bounds values for the GPS:
 
 <br/>
 
 $$
 \begin{aligned} 
-\hat{r}_{min}(t_i, X) = max\{ min(\hat{r}(t_i, X | T_i = t_1)),...,min(\hat{r}(t_i, X | T_i = t_k)) \}
+\hat{r}_{min}(t, X) = max\{ min(\hat{r}(t, X | T = t_1)),...,min(\hat{r}(t, X | T = t_k)) \}
 
 \\\\
 
-\hat{r}_{max}(t_i, X) = min\{ max(\hat{r}(t_i, X | T_i = t_1)),...,max(\hat{r}(t_i, X | T_i = t_k)) \}
+\hat{r}_{max}(t, X) = min\{ max(\hat{r}(t, X | T = t_1)),...,max(\hat{r}(t, X | T = t_k)) \}
 \end{aligned}
 $$
 
@@ -115,7 +115,7 @@ $$
 
 and then we require the following to be satisfied for each $x \in X$:  
 
-$$ \hat{r}(t_i, x) \in (\hat{r}_{min}(t_i, X),\hat{r}_{max}(t_i, X) ) $$
+$$ \hat{r}(t, x) \in (\hat{r}_{min}(t, X),\hat{r}_{max}(t, X) ) $$
 
 The effect for enforcing this assumption can also be illustrated in **Figure 1**. 
 
@@ -146,12 +146,13 @@ $$
 \end{aligned}
 $$
 
-Notice that $f(x, t)$ explicitly models the relationship between treatment, covariates and outcome, then it might be more prone to errors. 
-This method can be extended to use two learners, where each one models a single treatment group. The notation we use for a single learner 
-is **S-Learner** and **T-Learner** in the case of two learners, in our experiments we examine both variants. Lastly, these methods
-are also reviewed in [5], which suggests a build upon **T-Learner**.
+Notice that $f(x, t)$ explicitly models the relationship between treatment, covariates and outcome, thus, it might be more prone to errors. 
+This method can be extended to use two learners, where each one of the learners models a single treatment group. 
+We use the notation of **S-Learner** for a single learner, and **T-Learner** for two learners. 
+In our experiments we examine both variants. Lastly, these methods are also reviewed in [5] who introduced **X-Learner**,
+a specialized learner for cases of unbalanced trials (i.e., where one treatment group is relatively larger than the other groups).
 
-Following is a sample Python code for estimating the ATE with Covariate Adjustment (using a single learner):
+Following is a Python code sample for estimating the ATE with Covariate Adjustment (using a single learner):
 
 ```python
 def ate_by_covariate_adjustment(X: pandas.DataFrame, 
@@ -172,8 +173,9 @@ def ate_by_covariate_adjustment(X: pandas.DataFrame,
 
 This method estimates the causal effect by matching samples to their nearest neighbour, with respect to some distance metric. 
 For each sample $i$ with outcome denoted as $y_i$, we define the estimate for the *Individual Treatment Effect (ITE)* as $\widehat{ITE}(i) = y_i - y_{j}$ when sample $i$ is in the treated group (i.e., $t_i=1$), or
-$\widehat{ITE}(i) = y_{j} - y_{i}$ when sample $i$ is in the control group (i.e., $t_i=0$), where sample $j$ belongs to the control 
-or treated group respectively. Sample $j$ is the nearest neighbor of sample $i$, and its outcome is denoted by $y_{j}$.
+$\widehat{ITE}(i) = y_{j} - y_{i}$ when sample $i$ is in the control group (i.e., $t_i=0$), where sample $j$ belongs to the opposite group. 
+Sample $j$ is the nearest neighbor of sample $i$, and its outcome is denoted by $y_{j}$. Examples for metrics that measure distance
+between two samples include Manhattan distance, Euclidean distance, etc.
 
 Once we estimate the individual effect for each sample, we may also estimate the ATE:
 
@@ -183,8 +185,8 @@ $$
 \end{aligned}
 $$
 
-When using Matching, it is common to limit the distance value between two close samples. When following this mechanism, 
-we denote the maximal distance value as **Calipher**. Note that in this case some samples may have no match. In our trials we experiment
+When using Matching, it is common to limit the minimal distance value between two close samples. When following this mechanism, 
+we denote the maximal distance value we allow as **Calipher**. Note that in this case some samples may have no match. In our trials we experiment
 with a few values of Calipher, and also without any limit (denoted as 'None' in the results section). 
 
 A basic implementation for computing the ATE estimate with matching (without Calipher):
@@ -223,17 +225,17 @@ for t in treatments:
 
 For our experiments, we generated a synthetic classification dataset with 5 treatments, 
 where one of them is kept as the *control* treatment (denoted with $t_0$), and the others are denoted with $t_i$ (where $i \in \\{ 1,..,4 \\}$) for each treatment group. 
-In this technical report we chose to estimate the *Average Treatment Effect* (ATE) of $Y(t_0)$ vs. $Y(t_i)$, resulting in a total of 4 ATEs. 
+In this technical report we choose to estimate the *Average Treatment Effect* (ATE) of $Y(t_0)$ vs. $Y(t_i)$, resulting in a total of 4 ATEs. 
 The dataset is composed of the true ATE values which will allow us to evaluate our ATE estimates. Additionally, we experiment with two variants 
 of the original dataset, one with all subjects, and another with only eligible subjects according to the rectangular common support. 
 The true ATE values and number of subjects for each treatment group, in each of the datasets, can be observed in **Table 1**. 
 
 
 The full dataset has $46,700$ subjects, with $22$ covariates. After dropping non-eligible units we are left with $31,984$ units.
-As noted earlier, the dataset represents samples from 1 control group and 4 treatments groups, while our targets domain is {0, 1} for each sample. 
+As noted earlier, the dataset represents samples from 1 control group and 4 treatments groups, while our targets domain is $\\{ 0, 1\\}$ for each sample. 
 The covariates are all numeric and comprised of 5 informative features (for classification), 5 irrelevant features, and 12
 more features which are correlated with the treatments causal effect. We can choose positive, or negative effects for each treatment, in our trials the effects were all chosen as positive. 
-To generate the dataset we assisted with *CausalML* [3] framework which provides a method for this goal: `make_uplift_classification`.
+To generate the dataset we assisted with the *CausalML* [3] framework which provides a method for this goal: `make_uplift_classification`.
 
 
 Lastly, since the common support assumption reduces our dataset to samples which have an equal chance for receiving all treatments, 
@@ -289,7 +291,7 @@ Due to computational reasons, we evaluate the matching method only on the eligib
     </tr>
     <tr>
       <th></th>
-      <th>Features</th>
+      <th>Setup (features used)</th>
       <th>Covariates</th>
       <th>Covariates + Propensity scores</th>
       <th>Propensity scores</th>
@@ -396,7 +398,7 @@ Due to computational reasons, we evaluate the matching method only on the eligib
   <thead>
     <tr style="text-align: center;">
       <th></th>
-      <th>Features</th>
+      <th>Setup (features used)</th>
       <th>Covariates</th>
       <th>Covariates + Propensity scores</th>
       <th>Propensity scores</th>
@@ -508,11 +510,12 @@ Considering the Covariate Adjustment results in **Table 2**, we can observe how 
 when evaluated on the common-support enforced dataset. Additionally, we observe how T-Learners perform better than S-Learners.  
 While for the matching methods results (**Table 3** and **Table 4**), nearest neighbor algorithms based on covariates as features get 
 the best results. Further, we observe that matching on covariates or, propensity scores plus covariates is better than matching based 
-only on propensity scores. 
+only on propensity scores. Finally, we can also notice how optimizing the Calipher value have slightly improved our estimations with Manhattan distance, 
+which also yielded the most accurate result.
 
 The results demonstrate that generally (or at least for the eligible samples dataset) matching algorithms outperform covariate 
 adjustment. Perhaps the reason is that covariate adjustment method requires the model to be well specified, as described earlier 
-in the methods section.
+in the methods section. 
 
 ### Conclusions and Future work
 
