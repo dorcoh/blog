@@ -4,8 +4,10 @@ title: About
 permalink: /about/
 ---
 
-I am Dor, an engineer and MSc research student. I'm interested in code, algorithms, machine learning and data science research.
+I am Dor, an engineer and M.Sc. research student. 
 
-Willing to use this blog for sharing my ideas and thoughts, tutorials or projects.
+My interests revolve around programming and software engineering, algorithms, data science and machine learning research.
+
+Willing to use this web site for sharing my ideas and thoughts, tutorials or projects.
 
 Hope you enjoy reading!
