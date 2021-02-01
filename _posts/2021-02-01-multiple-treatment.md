@@ -96,27 +96,25 @@ Under these assumptions, we can compare subjects with similar GPS and expect wel
 Usually, $R(X)$, the GPS vector, is unknown, however we may estimate it with any statistical method.
 
 To enforce the common support assumption, one may use the estimate $\hat{R(x)}$ to trim subjects which do not rely in 
-the rectangular common support boundaries [1]. Specifically, for each treatment group we measure 
+the rectangular common support boundaries [1]. Specifically, for each treatment group $t \in \mathbb{T}$ we measure 
 lower and upper bounds values for the GPS:
 
 <br/>
 
 $$
 \begin{aligned} 
-\hat{r}_{min}(t, X) = max\{ min(\hat{r}(t, X | T = t_1)),...,min(\hat{r}(t, X | T = t_k)) \}
+r_{min}(t, X) = max\{ min(r(t, X | T = t_1)),...,min(r(t, X | T = t_k)) \}
 
 \\\\
 
-\hat{r}_{max}(t, X) = min\{ max(\hat{r}(t, X | T = t_1)),...,max(\hat{r}(t, X | T = t_k)) \}
+r_{max}(t, X) = min\{ max(r(t, X | T = t_1)),...,max(r(t, X | T = t_k)) \}
 \end{aligned}
 $$
 
 <br/>
 
-and then we require the following to be satisfied for each $x \in X$:  
-
-$$ \hat{r}(t, x) \in (\hat{r}_{min}(t, X),\hat{r}_{max}(t, X) ) $$
-
+where $r(t, X | T = j)$ is the treatment assignment probability for $t$ among those who received treatment $j$. Once we compute these bounds, 
+we can discard from our dataset subjects which do not rely in the range $$ (r_{min}(t, X), r_{max}(t, X) ) $$, according to the treatment each subject received.
 The effect for enforcing this assumption can also be illustrated in **Figure 1**. 
 
 <br/>
