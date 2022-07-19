@@ -5,18 +5,18 @@ title: Home
 
 ## Intro
 
-Hello! My name is Dor, I am an engineer and a researcher. 
+Hello! I'm Dor, an engineer and a researcher.
 
-I hold a <i>B.Sc. in Industrial Engineering & Management</i> (Information Systems major), and an <i>M.Sc. in Information Management Engineering</i>, 
-both were pursued at the Technion.
+I hold a B.Sc. in Industrial Engineering & Management (Information Systems major), and an M.Sc. in Information Management Engineering, which I earned at the Technion.
 
 My interests revolve around the fields of software engineering, algorithms, data science and applied machine learning research.
 
-Willing to use this web site for sharing my ideas and thoughts, tutorials or projects. Hope you find it useful :)
+Willing to use this website as a medium for sharing my ideas and thoughts, tutorials or projects. Hope you find it useful :)
 
 ## Research
 
-My research focuses on formal verification, safety issues of machine learning algorithms, and the intersection between these two fields.
+The topics of my research include formal verification methods, machine learning algorithms safety issues, and the intersection of the two fields.
+
 
 ### Publications
 
